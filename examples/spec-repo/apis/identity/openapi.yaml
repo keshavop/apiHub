@@ -1,0 +1,51 @@
+openapi: 3.1.0
+info:
+  title: Identity API
+  version: 2.6.1
+  description: Users and sessions.
+paths:
+  /users/{id}:
+    get:
+      operationId: getUser
+      summary: Get a user
+      tags: [Users]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: The user.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+  /users:
+    post:
+      operationId: createUser
+      summary: Create a user
+      tags: [Users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, email]
+              properties:
+                username: { type: string }
+                email: { type: string, format: email }
+                phone: { type: string }
+      responses:
+        "201":
+          description: Created.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/User" }
+components:
+  schemas:
+    User:
+      type: object
+      required: [id, username, email]
+      properties:
+        id: { type: string, example: usr_1 }
+        username: { type: string, example: ada }
+        email: { type: string, format: email, example: ada@example.com }
+        phone: { type: string }

@@ -1,0 +1,28 @@
+# Shared components. Reference them from any API:
+#   $ref: '../../domains/common.yaml#/Money'
+Money:
+  type: object
+  required: [amount, currency]
+  properties:
+    amount:
+      type: integer
+      description: Amount in minor units, e.g. 4200 = 42.00
+      example: 4200
+    currency:
+      type: string
+      description: ISO 4217 currency code
+      example: EUR
+Metadata:
+  type: object
+  description: Up to 20 string keys you can attach to an object.
+  additionalProperties:
+    type: string
+Problem:
+  type: object
+  description: RFC 9457 problem details.
+  required: [type, title, status]
+  properties:
+    type: { type: string, example: "https://errors.example.com/validation" }
+    title: { type: string, example: Invalid request }
+    status: { type: integer, example: 400 }
+    detail: { type: string }

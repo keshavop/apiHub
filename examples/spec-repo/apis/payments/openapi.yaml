@@ -1,0 +1,147 @@
+openapi: 3.1.0
+info:
+  title: Payments API
+  version: 2.2.0
+  description: Create charges and refunds. Writes are idempotent through the Idempotency-Key header.
+  contact:
+    name: Payments team
+    email: payments@example.com
+servers:
+  - url: https://sandbox.api.example.com/v2
+    description: Sandbox
+tags:
+  - name: Payments
+  - name: Refunds
+security:
+  - bearerAuth: []
+paths:
+  /payments:
+    get:
+      operationId: listPayments
+      summary: List payments
+      description: Newest first.
+      tags: [Payments]
+      parameters:
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+      responses:
+        "200":
+          description: A page of payments.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items: { $ref: "#/components/schemas/Payment" }
+    post:
+      operationId: createPayment
+      summary: Create a payment
+      description: Authorizes and, unless capture is false, captures a payment.
+      tags: [Payments]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PaymentCreate" }
+      responses:
+        "201":
+          description: Payment created.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Payment" }
+        "400":
+          description: Validation failed.
+          content:
+            application/problem+json:
+              schema: { $ref: "../../domains/common.yaml#/Problem" }
+  /payments/{id}:
+    get:
+      operationId: getPayment
+      summary: Get a payment
+      tags: [Payments]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, example: pay_8f2k1 }
+      responses:
+        "200":
+          description: The payment.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Payment" }
+        "404":
+          description: Not found.
+          content:
+            application/problem+json:
+              schema: { $ref: "../../domains/common.yaml#/Problem" }
+  /refunds:
+    post:
+      operationId: createRefund
+      summary: Create a refund
+      description: Refunds all or part of a captured payment.
+      tags: [Refunds]
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyKey"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RefundCreate" }
+      responses:
+        "201":
+          description: Refund created.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Refund" }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: Unique per logical request. Kept for 24 hours.
+      schema: { type: string, example: 7c1e5b0a-2f4d-4b8e-9a51-2d0c6f3e9b11 }
+  schemas:
+    PaymentCreate:
+      type: object
+      required: [amount, currency, source]
+      properties:
+        amount: { type: integer, example: 4200, description: Amount in minor units }
+        currency: { type: string, example: EUR }
+        source: { type: string, example: tok_visa, description: Token from the client SDK }
+        capture: { type: boolean, default: true }
+        metadata: { $ref: "../../domains/common.yaml#/Metadata" }
+    Payment:
+      type: object
+      required: [id, status, amount, currency, created_at]
+      properties:
+        id: { type: string, example: pay_8f2k1 }
+        status: { type: string, enum: [pending, succeeded, failed], example: succeeded }
+        amount: { type: integer, example: 4200 }
+        currency: { type: string, example: EUR }
+        created_at: { type: string, format: date-time }
+        metadata: { $ref: "../../domains/common.yaml#/Metadata" }
+    RefundCreate:
+      type: object
+      required: [payment_id]
+      properties:
+        payment_id: { type: string, example: pay_8f2k1 }
+        amount: { type: integer, minimum: 1, description: Defaults to the full amount }
+    Refund:
+      type: object
+      required: [id, payment_id, amount, status]
+      properties:
+        id: { type: string, example: re_19ac }
+        payment_id: { type: string, example: pay_8f2k1 }
+        amount: { type: integer, example: 4200 }
+        status: { type: string, enum: [pending, succeeded], example: succeeded }

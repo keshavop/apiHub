@@ -1,0 +1,23 @@
+openapi: 3.0.3
+info:
+  title: Ledger API v1
+  version: 1.6.4
+  description: Superseded by Payments API v2.
+paths:
+  /entries:
+    get:
+      operationId: listEntries
+      summary: List ledger entries
+      tags: [Ledger]
+      responses:
+        "200":
+          description: Entries.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: { type: string }
+                    amount: { $ref: "../../domains/common.yaml#/Money" }

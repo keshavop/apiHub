@@ -1,0 +1,59 @@
+openapi: 3.0.3
+info:
+  title: Orders API
+  version: 1.8.1
+  description: Order lifecycle from cart to fulfilment.
+servers:
+  - url: https://sandbox.api.example.com/orders/v1
+paths:
+  /orders:
+    post:
+      operationId: createOrder
+      summary: Create an order
+      tags: [Orders]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [items]
+              properties:
+                items:
+                  type: array
+                  items:
+                    type: object
+                    required: [sku, quantity]
+                    properties:
+                      sku: { type: string, example: SKU-1042 }
+                      quantity: { type: integer, minimum: 1, example: 2 }
+      responses:
+        "201":
+          description: Order created.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Order" }
+        "409":
+          description: Stock is no longer available.
+  /orders/{id}:
+    get:
+      operationId: getOrder
+      summary: Get an order
+      tags: [Orders]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string } }
+      responses:
+        "200":
+          description: The order.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Order" }
+components:
+  schemas:
+    Order:
+      type: object
+      required: [id, status]
+      properties:
+        id: { type: string, example: ord_77d2 }
+        status: { type: string, enum: [open, paid, shipped, cancelled], example: open }
+        total: { $ref: "../../domains/common.yaml#/Money" }

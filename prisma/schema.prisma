@@ -1,0 +1,137 @@
+// apiHub data model. SQLite for local dev; the models avoid provider-specific
+// features so switching `provider` to "postgresql" only needs a new migration.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+/// Staff (GitHub sign-in) and partners (email + password) share one table.
+model User {
+  id           String    @id @default(cuid())
+  kind         String // "staff" | "partner"
+  role         String // staff: "owner" | "admin" | "designer"; partner: "partner"
+  email        String?   @unique
+  name         String?
+  githubLogin  String?   @unique
+  company      String?
+  passwordHash String?
+  status       String    @default("invited") // "invited" | "active" | "disabled"
+  expiresAt    DateTime?
+  failedLogins Int       @default(0)
+  lockedUntil  DateTime?
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  sessions       Session[]
+  passwordTokens PasswordToken[]
+  grants         ApiGrant[]
+}
+
+/// Database-backed sessions: deleting a row signs the user out immediately.
+model Session {
+  id        String   @id // sha256 of the cookie token
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+/// Single-use set-password / reset-password links.
+model PasswordToken {
+  id        String    @id // sha256 of the token in the link
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  purpose   String // "set" | "reset"
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+/// One API = one folder `apis/<slug>/` in the spec repository.
+model Api {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  title          String
+  description    String   @default("")
+  owner          String   @default("")
+  tags           String   @default("[]") // JSON string[]
+  visibility     String   @default("internal") // "internal" | "partner" | "public"
+  defaultVersion String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  versions ApiVersion[]
+  grants   ApiGrant[]
+}
+
+/// A spec snapshot. channel "release" comes from a git tag `<slug>@<semver>`
+/// and is immutable; channel "main" is the working draft on the default branch.
+model ApiVersion {
+  id          String   @id @default(cuid())
+  apiId       String
+  api         Api      @relation(fields: [apiId], references: [id], onDelete: Cascade)
+  version     String
+  channel     String // "release" | "main"
+  ref         String // git tag or branch name
+  commitSha   String
+  lifecycle   String   @default("published") // "draft" | "published" | "deprecated" | "retired"
+  sunsetAt    DateTime?
+  specJson    String // bundled OpenAPI document (external $refs inlined)
+  sourceYaml  String // openapi.yaml as written in the repo
+  oasVersion  String
+  opCount     Int
+  lint        String   @default("[]") // JSON LintIssue[]
+  changelog   String? // markdown vs. the previous release
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([apiId, channel, version])
+  @@index([apiId])
+}
+
+/// What a partner email may open: one API, a semver range of released versions.
+model ApiGrant {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  apiId        String
+  api          Api       @relation(fields: [apiId], references: [id], onDelete: Cascade)
+  versionRange String    @default("*")
+  expiresAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@unique([userId, apiId])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  actor     String // display label, kept even if the user is deleted
+  action    String
+  target    String   @default("")
+  detail    String   @default("")
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+model SyncEvent {
+  id        String   @id @default(cuid())
+  trigger   String // "webhook" | "manual" | "startup"
+  ref       String   @default("")
+  status    String // "ok" | "error"
+  message   String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
