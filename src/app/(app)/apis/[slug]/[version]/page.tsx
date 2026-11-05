@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { CopyButton } from "@/components/copy-button";
 import { VersionSelect } from "@/components/spec/version-select";
 import { SpecViewer } from "@/components/spec/spec-viewer";
+import { SwaggerViewer } from "@/components/spec/swagger-viewer";
 import { Badge, ButtonLink, Card, lifecycleTone } from "@/components/ui";
 import { loadVersion } from "@/lib/access";
 import { getCurrentUser, hasRole } from "@/lib/auth/current-user";
@@ -17,7 +18,7 @@ export async function generateMetadata({ params }: PageProps<"/apis/[slug]/[vers
 
 export default async function DocsPage({ params, searchParams }: PageProps<"/apis/[slug]/[version]">) {
   const { slug, version } = await params;
-  const { tab } = await searchParams;
+  const { tab, view } = await searchParams;
   const user = await getCurrentUser();
   const found = await loadVersion(user, slug, version);
   if (!found) {
@@ -49,6 +50,8 @@ export default async function DocsPage({ params, searchParams }: PageProps<"/api
     ...(isStaff ? [{ id: "lint", label: `Lint (${lint.length})` }] : []),
   ];
   const activeTab = tabs.some((t) => t.id === tab) ? (tab as string) : "docs";
+  // Partners always get Swagger UI; staff can switch to Scalar.
+  const viewer = isStaff && view === "scalar" ? "scalar" : "swagger";
 
   return (
     <div>
@@ -107,10 +110,25 @@ export default async function DocsPage({ params, searchParams }: PageProps<"/api
               {t.label}
             </Link>
           ))}
+          {isStaff && activeTab === "docs" ? (
+            <div className="ml-auto flex items-center gap-1 self-center rounded-lg border border-line p-0.5 text-[13px]" role="group" aria-label="Renderer">
+              {(["swagger", "scalar"] as const).map((r) => (
+                <Link
+                  key={r}
+                  href={r === "swagger" ? `/apis/${slug}/${ref}` : `/apis/${slug}/${ref}?view=scalar`}
+                  aria-current={viewer === r ? "true" : undefined}
+                  className={`rounded-md px-2.5 py-1 ${viewer === r ? "bg-surface-2 font-semibold" : "text-muted hover:text-fg"}`}
+                >
+                  {r === "swagger" ? "Swagger UI" : "Scalar"}
+                </Link>
+              ))}
+            </div>
+          ) : null}
         </nav>
       </div>
 
-      {activeTab === "docs" ? <SpecViewer spec={JSON.parse(v.specJson)} mockUrl={mockUrl} /> : null}
+      {activeTab === "docs" && viewer === "swagger" ? <SwaggerViewer spec={JSON.parse(v.specJson)} mockUrl={mockUrl} /> : null}
+      {activeTab === "docs" && viewer === "scalar" ? <SpecViewer spec={JSON.parse(v.specJson)} mockUrl={mockUrl} /> : null}
 
       {activeTab === "changelog" ? (
         <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6">

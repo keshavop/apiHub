@@ -1,0 +1,103 @@
+/* Swagger UI keeps its standard look in light mode; these rules adapt it to
+   apiHub's dark tokens, which Swagger UI has no theme for. */
+.apihub-swagger .swagger-ui .info { margin: 32px 0 24px; }
+.apihub-swagger .swagger-ui .scheme-container { box-shadow: none; border: 1px solid var(--border); border-radius: 8px; margin: 0 0 24px; }
+
+.dark .apihub-swagger .swagger-ui,
+.dark .apihub-swagger .swagger-ui .info .title,
+.dark .apihub-swagger .swagger-ui .info p,
+.dark .apihub-swagger .swagger-ui .info li,
+.dark .apihub-swagger .swagger-ui .info a,
+.dark .apihub-swagger .swagger-ui .opblock-tag,
+.dark .apihub-swagger .swagger-ui .opblock .opblock-summary-description,
+.dark .apihub-swagger .swagger-ui .opblock .opblock-summary-path,
+.dark .apihub-swagger .swagger-ui .opblock .opblock-summary-path__deprecated,
+.dark .apihub-swagger .swagger-ui .opblock-description-wrapper p,
+.dark .apihub-swagger .swagger-ui .opblock-title_normal p,
+.dark .apihub-swagger .swagger-ui .opblock .opblock-section-header h4,
+.dark .apihub-swagger .swagger-ui .opblock .opblock-section-header > label,
+.dark .apihub-swagger .swagger-ui .tab li,
+.dark .apihub-swagger .swagger-ui .tab li button.tablinks,
+.dark .apihub-swagger .swagger-ui table thead tr td,
+.dark .apihub-swagger .swagger-ui table thead tr th,
+.dark .apihub-swagger .swagger-ui .parameter__name,
+.dark .apihub-swagger .swagger-ui .parameter__type,
+.dark .apihub-swagger .swagger-ui .parameter__in,
+.dark .apihub-swagger .swagger-ui .response-col_status,
+.dark .apihub-swagger .swagger-ui .response-col_links,
+.dark .apihub-swagger .swagger-ui .responses-inner h4,
+.dark .apihub-swagger .swagger-ui .responses-inner h5,
+.dark .apihub-swagger .swagger-ui .markdown p,
+.dark .apihub-swagger .swagger-ui .renderedMarkdown p,
+.dark .apihub-swagger .swagger-ui .model,
+.dark .apihub-swagger .swagger-ui .model-title,
+.dark .apihub-swagger .swagger-ui .models h4,
+.dark .apihub-swagger .swagger-ui section.models h4,
+.dark .apihub-swagger .swagger-ui .servers-title,
+.dark .apihub-swagger .swagger-ui .servers > label,
+.dark .apihub-swagger .swagger-ui label,
+.dark .apihub-swagger .swagger-ui .dialog-ux .modal-ux-header h3,
+.dark .apihub-swagger .swagger-ui .dialog-ux .modal-ux-content p,
+.dark .apihub-swagger .swagger-ui .dialog-ux .modal-ux-content h4,
+.dark .apihub-swagger .swagger-ui .btn,
+.dark .apihub-swagger .swagger-ui .expand-operation svg,
+.dark .apihub-swagger .swagger-ui .models-control svg {
+  color: var(--fg);
+  fill: var(--fg);
+}
+
+.dark .apihub-swagger .swagger-ui .prop-type,
+.dark .apihub-swagger .swagger-ui .parameter__in,
+.dark .apihub-swagger .swagger-ui .parameter__type,
+.dark .apihub-swagger .swagger-ui .prop-format { color: var(--muted); }
+.dark .apihub-swagger .swagger-ui .model .property.primitive,
+.dark .apihub-swagger .swagger-ui .model-toggle::after { filter: invert(1); color: var(--muted); }
+
+.dark .apihub-swagger .swagger-ui .scheme-container,
+.dark .apihub-swagger .swagger-ui section.models,
+.dark .apihub-swagger .swagger-ui section.models .model-container,
+.dark .apihub-swagger .swagger-ui .opblock .opblock-section-header,
+.dark .apihub-swagger .swagger-ui .dialog-ux .modal-ux,
+.dark .apihub-swagger .swagger-ui .dialog-ux .modal-ux-header {
+  background: var(--surface);
+  border-color: var(--border);
+  box-shadow: none;
+}
+.dark .apihub-swagger .swagger-ui section.models .model-container:hover { background: var(--surface-2); }
+.dark .apihub-swagger .swagger-ui .opblock-tag,
+.dark .apihub-swagger .swagger-ui table thead tr td,
+.dark .apihub-swagger .swagger-ui table thead tr th,
+.dark .apihub-swagger .swagger-ui .opblock .opblock-section-header,
+.dark .apihub-swagger .swagger-ui .responses-inner,
+.dark .apihub-swagger .swagger-ui section.models { border-color: var(--border); }
+
+.dark .apihub-swagger .swagger-ui input[type="text"],
+.dark .apihub-swagger .swagger-ui input[type="password"],
+.dark .apihub-swagger .swagger-ui input[type="search"],
+.dark .apihub-swagger .swagger-ui input[type="email"],
+.dark .apihub-swagger .swagger-ui textarea,
+.dark .apihub-swagger .swagger-ui select {
+  background-color: var(--bg);
+  color: var(--fg);
+  border-color: var(--border);
+}
+.dark .apihub-swagger .swagger-ui select { background-image: none; }
+.dark .apihub-swagger .swagger-ui .btn { border-color: var(--border); background: transparent; }
+.dark .apihub-swagger .swagger-ui .btn.execute { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.dark .apihub-swagger .swagger-ui .btn.authorize { color: var(--post); border-color: var(--post); }
+.dark .apihub-swagger .swagger-ui .btn.authorize svg { fill: var(--post); }
+
+/* Operation blocks: keep Swagger's method colours, darken the panels. */
+.dark .apihub-swagger .swagger-ui .opblock { background: var(--surface); }
+.dark .apihub-swagger .swagger-ui .opblock.opblock-get { background: color-mix(in srgb, #61affe 10%, var(--surface)); }
+.dark .apihub-swagger .swagger-ui .opblock.opblock-post { background: color-mix(in srgb, #49cc90 10%, var(--surface)); }
+.dark .apihub-swagger .swagger-ui .opblock.opblock-put { background: color-mix(in srgb, #fca130 10%, var(--surface)); }
+.dark .apihub-swagger .swagger-ui .opblock.opblock-patch { background: color-mix(in srgb, #50e3c2 10%, var(--surface)); }
+.dark .apihub-swagger .swagger-ui .opblock.opblock-delete { background: color-mix(in srgb, #f93e3e 10%, var(--surface)); }
+.dark .apihub-swagger .swagger-ui .opblock.opblock-deprecated { background: var(--surface-2); opacity: 0.8; }
+.dark .apihub-swagger .swagger-ui .opblock-body pre.microlight,
+.dark .apihub-swagger .swagger-ui .highlight-code > .microlight,
+.dark .apihub-swagger .swagger-ui .model-box { background: var(--code-bg) !important; }
+.dark .apihub-swagger .swagger-ui .tab li:first-of-type::after { background: var(--border); }
+.dark .apihub-swagger .swagger-ui .info .base-url { color: var(--muted); }
+.dark .apihub-swagger .swagger-ui .info a { color: var(--accent); }

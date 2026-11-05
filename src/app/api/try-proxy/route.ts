@@ -52,12 +52,19 @@ async function handle(req: Request) {
     const cookie = req.headers.get("cookie");
     if (cookie) headers.set("cookie", cookie);
   }
-  const upstream = await fetch(url, {
-    method: req.method,
-    headers,
-    body: ["GET", "HEAD"].includes(req.method) ? undefined : await req.arrayBuffer(),
-    redirect: "manual",
-  });
+  let upstream: Response;
+  try {
+    upstream = await fetch(url, {
+      method: req.method,
+      headers,
+      body: ["GET", "HEAD"].includes(req.method) ? undefined : await req.arrayBuffer(),
+      redirect: "manual",
+      signal: AbortSignal.timeout(20_000),
+    });
+  } catch (e) {
+    const reason = e instanceof Error ? (e.cause instanceof Error ? e.cause.message : e.message) : String(e);
+    return Response.json({ error: `Couldn't reach ${url.origin}: ${reason}` }, { status: 502 });
+  }
   const out = new Headers(upstream.headers);
   out.delete("content-encoding");
   out.delete("content-length");
